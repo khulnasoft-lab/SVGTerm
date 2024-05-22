@@ -3,7 +3,7 @@ name: Test Redistribute
 on:
   push:
     branches:
-      - main
+      - dev
   pull_request:
     types:
       - opened
