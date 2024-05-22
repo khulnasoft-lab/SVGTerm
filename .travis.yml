@@ -1,0 +1,164 @@
+# Pipeline structure:
+#
+# 1/ Tests: Run unit tests, coverage analysis and pylint on
+#       - Linux, Python 3.5
+#       - Linux, Python 3.6
+#       - Linux, Python 3.7
+#       - Linux, Python 3.8-dev
+#       - macOS, Python 3.6
+#
+# 2/ Artifact deployment:
+#     - For tags x.y.z:
+#         - Upload Python package to https://pypi.org/project/svgterm
+#         - Upload website to gh-pages branch on GitHub
+#
+#     - For other tags:
+#         - Upload Python package to https://test.pypi.org/project/svgterm
+#         - Upload website to gh-pages-staging branch on GitHub
+#
+#     For all tags, add manual pages to the corresponding GitHub release
+#     (https://github.com/khulnasoft-lab/svgterm/releases)
+
+language: python
+jobs:
+  allow_failures:
+  - python: 3.8-dev
+  include:
+  - stage: Test
+    python: 3.5
+    install:
+    - make install
+    script:
+    - make tests
+
+  - stage: Test
+    python: 3.6
+    install:
+    - make install
+    script:
+    - make tests
+
+  - stage: Test
+    python: 3.7
+    dist: xenial
+    sudo: true
+    install:
+    - make install
+    script:
+    - make tests
+
+  - stage: Test
+    python: 3.8-dev
+    dist: xenial
+    sudo: true
+    install:
+    - make install
+    script:
+    - make tests
+
+  - stage: Test
+    os: osx
+    language: generic
+    install:
+    - make -e install
+    script:
+    - make -e tests
+    env:
+    - PIP=pip3
+    - PYTHON=python3
+
+  - stage: Build and deploy
+    name: Build and deploy Python package (production)
+    if: tag =~ ^[0-9]+\.[0-9]+\.[0-9]+$
+    python: 3.6
+    script:
+    - make man
+    addons:
+      apt_packages:
+      - pandoc
+    deploy:
+    - provider: releases
+      skip_cleanup: true
+      api_key: "$GITHUB_TOKEN"
+      name: $TRAVIS_TAG
+      file_glob: true
+      file: man_*.tar.gz
+      draft: true
+      on:
+        tags: true
+    - provider: pypi
+      user: khulnasoft-lab
+      skip_cleanup: true
+      skip_existing: true
+      distributions: "sdist bdist_wheel"
+      on:
+        tags: true
+
+  - stage: Build and deploy
+    name: Build and deploy Python package (staging)
+    if: tag IS present AND ( NOT tag =~ ^[0-9]+\.[0-9]+\.[0-9]+$ )
+    python: 3.6
+    script:
+    - make man
+    addons:
+      apt_packages:
+      - pandoc
+    deploy:
+    - provider: releases
+      skip_cleanup: true
+      api_key: "$GITHUB_TOKEN"
+      name: $TRAVIS_TAG
+      file_glob: true
+      file: man_*.tar.gz
+      draft: true
+      on:
+        tags: true
+    - provider: pypi
+      user: khulnasoft-lab
+      skip_cleanup: true
+      skip_existing: true
+      distributions: "sdist bdist_wheel"
+      server: https://test.pypi.org/legacy/
+      on:
+        tags: true
+
+  - stage: Build and deploy
+    name: Build and deploy website (production)
+    if: tag =~ ^[0-9]+\.[0-9]+\.[0-9]+$
+    python: 3.6
+    install:
+    - make install
+    script:
+    - make html
+    deploy:
+    - provider: pages
+      skip_cleanup: true
+      github-token: "$GITHUB_TOKEN"
+      keep-history: true
+      local-dir: docs
+      target-branch: gh-pages
+      verbose: true
+      on:
+        tags: true
+
+  - stage: Build and deploy
+    name: Build and deploy website (staging)
+    if: tag IS present AND ( NOT tag =~ ^[0-9]+\.[0-9]+\.[0-9]+$ )
+    python: 3.6
+    install:
+    - make install
+    script:
+    - make html
+    deploy:
+    - provider: pages
+      skip_cleanup: true
+      github-token: "$GITHUB_TOKEN"
+      keep-history: true
+      local-dir: docs
+      target-branch: gh-pages-staging
+      verbose: true
+      on:
+        tags: true
+
+notifications:
+  email: false
