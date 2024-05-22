@@ -60,6 +60,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install coverage pytest mypy ruff coverage[toml]
+          python3 setup.py install
           
       - run: mkdir coverage
       - name: Test
