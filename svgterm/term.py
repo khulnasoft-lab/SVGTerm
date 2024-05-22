@@ -29,7 +29,7 @@ import pyte.screens
 from svgterm import anim
 from svgterm.asciicast import AsciiCastV2Event, AsciiCastV2Header
 
-TimedFrame = namedtuple('TimedFrame', ['time', 'duration', 'buffer'])
+TimedFrame = namedtuple("TimedFrame", ["time", "duration", "buffer"])
 
 
 class TerminalMode:
@@ -39,6 +39,7 @@ class TerminalMode:
     properly restored when functions like `_record` (which relies on setting
     the terminal mode to raw and changing the geometry of the screen) fail.
     """
+
     def __init__(self, fileno):
         self.fileno = fileno
         self.mode = None
@@ -152,7 +153,9 @@ def _capture_output(input_fileno, output_fileno, master_fd, buffer_size=1024):
                 data = data[n:]
 
 
-def _group_by_time(event_records, min_rec_duration, max_rec_duration, last_rec_duration):
+def _group_by_time(
+    event_records, min_rec_duration, max_rec_duration, last_rec_duration
+):
     """Merge event records together if they are close enough
 
     The time elapsed between two consecutive event records returned by this
@@ -171,7 +174,7 @@ def _group_by_time(event_records, min_rec_duration, max_rec_duration, last_rec_d
     :return: Sequence of records with duration
     """
     # TODO: itertools.accumulate?
-    current_string = ''
+    current_string = ""
     current_time = 0
     dropped_time = 0
 
@@ -183,7 +186,7 @@ def _group_by_time(event_records, min_rec_duration, max_rec_duration, last_rec_d
         # Silently ignoring the duration on input records is a source
         # of confusion so fail hard if the duration is set
         assert event_record.duration is None
-        if event_record.event_type != 'o':
+        if event_record.event_type != "o":
             continue
 
         time_between_events = event_record.time - (current_time + dropped_time)
@@ -192,20 +195,24 @@ def _group_by_time(event_records, min_rec_duration, max_rec_duration, last_rec_d
                 if max_rec_duration < time_between_events:
                     dropped_time += time_between_events - max_rec_duration
                     time_between_events = max_rec_duration
-            accumulator_event = AsciiCastV2Event(time=current_time,
-                                                 event_type='o',
-                                                 event_data=current_string,
-                                                 duration=time_between_events)
+            accumulator_event = AsciiCastV2Event(
+                time=current_time,
+                event_type="o",
+                event_data=current_string,
+                duration=time_between_events,
+            )
             yield accumulator_event
-            current_string = ''
+            current_string = ""
             current_time += time_between_events
 
         current_string += event_record.event_data
 
-    accumulator_event = AsciiCastV2Event(time=current_time,
-                                         event_type='o',
-                                         event_data=current_string,
-                                         duration=last_rec_duration / 1000)
+    accumulator_event = AsciiCastV2Event(
+        time=current_time,
+        event_type="o",
+        event_data=current_string,
+        duration=last_rec_duration / 1000,
+    )
     yield accumulator_event
 
 
@@ -236,15 +243,19 @@ def record(process_args, columns, lines, input_fileno, output_fileno):
 
     # TODO: why start != 0?
     start = None
-    utf8_decoder = codecs.getincrementaldecoder('utf-8')('replace')
-    for data, time in _record(process_args, columns, lines, input_fileno, output_fileno):
+    utf8_decoder = codecs.getincrementaldecoder("utf-8")("replace")
+    for data, time in _record(
+        process_args, columns, lines, input_fileno, output_fileno
+    ):
         if start is None:
             start = time
 
-        yield AsciiCastV2Event(time=(time - start).total_seconds(),
-                               event_type='o',
-                               event_data=utf8_decoder.decode(data),
-                               duration=None)
+        yield AsciiCastV2Event(
+            time=(time - start).total_seconds(),
+            event_type="o",
+            event_data=utf8_decoder.decode(data),
+            duration=None,
+        )
 
 
 def timed_frames(records, min_frame_dur=1, max_frame_dur=None, last_frame_dur=1000):
@@ -279,16 +290,19 @@ def timed_frames(records, min_frame_dur=1, max_frame_dur=None, last_frame_dur=10
     def generator():
         screen = pyte.Screen(header.width, header.height)
         stream = pyte.Stream(screen)
-        timed_records = _group_by_time(records, min_frame_dur, max_frame_dur,
-                                       last_frame_dur)
+        timed_records = _group_by_time(
+            records, min_frame_dur, max_frame_dur, last_frame_dur
+        )
 
         for record_ in timed_records:
             assert isinstance(record_, AsciiCastV2Event)
             for char in record_.event_data:
                 stream.feed(char)
-            yield TimedFrame(int(1000 * record_.time),
-                             int(1000 * record_.duration),
-                             _screen_buffer(screen))
+            yield TimedFrame(
+                int(1000 * record_.time),
+                int(1000 * record_.duration),
+                _screen_buffer(screen),
+            )
 
     return (header.width, header.height), generator()
 
@@ -308,12 +322,14 @@ def _screen_buffer(screen):
         try:
             data = screen.buffer[row][column].data
         except KeyError:
-            data = ' '
+            data = " "
 
-        cursor_char = pyte.screens.Char(data=data,
-                                        fg=screen.cursor.attrs.fg,
-                                        bg=screen.cursor.attrs.bg,
-                                        reverse=True)
+        cursor_char = pyte.screens.Char(
+            data=data,
+            fg=screen.cursor.attrs.fg,
+            bg=screen.cursor.attrs.bg,
+            reverse=True,
+        )
         buffer[row][column] = anim.CharacterCell.from_pyte(cursor_char)
     return buffer
 
