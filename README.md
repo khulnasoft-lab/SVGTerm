@@ -17,8 +17,6 @@
 svgterm is a Unix terminal recorder written in Python that renders your command
 line sessions as standalone SVG animations.
 
-![Example](./docs/examples/awesome_window_frame_powershell.svg)
-
 * [Gallery of examples](https://khulnasoft-lab.github.io/svgterm/pages/examples.html)
 * [Gallery of templates](https://khulnasoft-lab.github.io/svgterm/pages/templates.html)
 
