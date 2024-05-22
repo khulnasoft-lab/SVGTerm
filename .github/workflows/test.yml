@@ -55,6 +55,12 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled == 'true' }}
         with:
           limit-access-to-actor: true
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install coverage pytest mypy ruff coverage[toml]
+          
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh
