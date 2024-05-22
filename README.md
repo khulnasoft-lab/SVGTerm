@@ -1,4 +1,19 @@
 # svgterm
+
+<a href="https://github.com/khulnasoft-lab/svgterm/actions/workflows/test.yml" target="_blank">
+    <img src="https://github.com/khulnasoft-lab/svgterm/actions/workflows/test.yml/badge.svg" alt="Test">
+</a>
+<a href="https://github.com/khulnasoft-lab/svgterm/actions/workflows/publish.yml" target="_blank">
+    <img src="https://github.com/khulnasoft-lab/svgterm/actions/workflows/publish.yml/badge.svg" alt="Publish">
+</a>
+<a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/khulnasoft-lab/svgterm" target="_blank">
+    <img src="https://coverage-badge.samuelcolvin.workers.dev/khulnasoft-lab/svgterm.svg" alt="Coverage">
+<a href="https://pypi.org/project/svgterm" target="_blank">
+    <img src="https://img.shields.io/pypi/v/svgterm?color=%2334D058&label=pypi%20package" alt="Package version">
+</a>
+
+---
+
 svgterm is a Unix terminal recorder written in Python that renders your command
 line sessions as standalone SVG animations.
 
