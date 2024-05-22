@@ -55,9 +55,6 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled == 'true' }}
         with:
           limit-access-to-actor: true
-      - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install -r requirements-tests.txt
       - name: Lint
         run: bash scripts/lint.sh
       - run: mkdir coverage
