@@ -11,7 +11,7 @@ line sessions as standalone SVG animations.
 * Produce lightweight and clean looking animations or still frames embeddable on a project page
 * Custom color themes, terminal UI and animation controls via user-defined [SVG templates](man/svgterm-templates.md)
 * Rendering of recordings in asciicast format made with asciinema
-    
+
 ## Installation
 svgterm is compatible with Linux, macOS and BSD OSes, requires Python >= 3.5 and can be installed as follows using pip:
 ```shell
