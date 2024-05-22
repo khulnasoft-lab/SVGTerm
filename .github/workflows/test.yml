@@ -3,7 +3,7 @@ name: Test
 on:
   push:
     branches:
-      - main
+      - dev
   pull_request:
     types:
       - opened
@@ -30,8 +30,6 @@ jobs:
           - "3.8"
           - "3.9"
           - "3.10"
-          - "3.11"
-          - "3.12"
       fail-fast: false
     steps:
       - name: Dump GitHub context
